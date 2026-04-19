@@ -117,7 +117,7 @@ class Laser : public BaseModel
 public:
 	Laser(Model model, Vector3 pos, Texture texture) : BaseModel(model, pos, Vector3{0,0,-1}, LASER_SPEED)
 	{
-		SetMaterialTexture(&model.materials[0], MATERIAL_MAP_ALBEDO, texture);
+		SetMaterialTexture(&m_model.materials[0], MATERIAL_MAP_ALBEDO, texture);
 	}
 };
 class Meteor : public BaseModel
@@ -176,12 +176,13 @@ public:
 		shader = LoadShader(nullptr, "shaders/flash.fs");
 		m_model.materials[0].shader = shader;
 		flash_loc = GetShaderLocation(shader, "flash");
-		flashAmount = { 1.f,0.f };
+		flashAmount = { 1.f, 0.f };
 	}
 
 	void flash() const
 	{
-		SetShaderValue(shader, flash_loc, &flashAmount, SHADER_UNIFORM_VEC2);
+		if (flash_loc >= 0)
+			SetShaderValue(shader, flash_loc, &flashAmount, SHADER_UNIFORM_VEC2);
 	}
 
 	/*

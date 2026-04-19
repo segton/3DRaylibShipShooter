@@ -10,7 +10,7 @@ Game::Game()
     //camera
     camera.position = Vector3{ -4.0f, 8.0f, 6.0f };
     camera.target = Vector3{ 0.0f,0.0f,-1.0f };
-    camera.up = Vector3{ 0.0, 1.0, 0.0 };
+    camera.up = Vector3{ 0.0f, 1.0f, 0.0f };
     camera.fovy = 45.0f;
     camera.projection = CAMERA_PERSPECTIVE;
 
@@ -59,19 +59,20 @@ void Game::run()
 
 void Game::draw()
 {
-	ClearBackground(BLACK);
-	BeginDrawing();
+    BeginDrawing();
+    ClearBackground(BLACK);
+
     BeginMode3D(camera);
     floor.draw();
     player.draw();
     drawShadows();
     for (auto& m : meteors) m.draw();
     for (auto& l : lasers) l.draw();
-
     EndMode3D();
+
     DrawTime();
     DrawScore();
-	EndDrawing();
+    EndDrawing();
 }
 
 void Game::CheckCollisions()

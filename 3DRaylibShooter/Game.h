@@ -23,13 +23,14 @@ public:
 	Game();
 	~Game();
 	void run();
-
+	void draw();
+	void update();
+	bool isGameOver = false;
 
 	
 
 private:
-	void draw();
-	void update();
+
 	void importAssets();
 	void shootLaser(Vector3 pos);
 	void spawnMeteor();
@@ -40,7 +41,6 @@ private:
 	void DrawScore() const;
 	void DespawnFarLaser();
 	void DespawnFarMeteor();
-	bool isGameOver = false;
 
 	int score = 0;
 

@@ -1,14 +1,18 @@
-#version 330
+#version 100
+precision mediump float;
 
-in vec2 fragTexCoord;
-in vec4 fragColor; 
+varying vec2 fragTexCoord;
+varying vec4 fragColor;
 
 uniform sampler2D texture0;
-uniform vec2 flash = vec2(0.0,0.0);
+uniform vec4 colDiffuse;
+uniform vec2 flash;
 
-out vec4 finalColor;
+void main()
+{
+    vec4 texelColor = texture2D(texture0, fragTexCoord) * colDiffuse * fragColor;
 
-void main() {
-    vec4 texelColor = texture(texture0, fragTexCoord);
-    finalColor = mix(texelColor, vec4(1.0, 1.0, 1.0, texelColor.a), flash.x);
+    texelColor.rgb = mix(texelColor.rgb, vec3(1.0, 1.0, 1.0), flash.x);
+
+    gl_FragColor = texelColor;
 }
