@@ -14,6 +14,8 @@ Game::Game()
     camera.fovy = 45.0f;
     camera.projection = CAMERA_PERSPECTIVE;
 
+    startTime = GetTime();
+
     player = Player(models.player, {0,0,0}, [this](Vector3 pos) { shootLaser(pos); });
 
 
@@ -24,6 +26,7 @@ Game::Game()
         [this]() { spawnMeteor(); }
     );
 
+    restartTimer = Timer(2.f, false, false, [this]() { restart(); });
     PlayMusicStream(audio.music);
     SetMasterVolume(0.2);
 }
@@ -53,12 +56,17 @@ void Game::run()
 	{
         update();
 		draw();
+
+        
 	}
 
 }
 
 void Game::draw()
 {
+
+ 
+
     BeginDrawing();
     ClearBackground(BLACK);
 
@@ -110,6 +118,7 @@ void Game::CheckCollisions()
         if (collided)
         {
             isGameOver = true;
+            restartTimer.activate();
         }
     }
 
@@ -145,10 +154,28 @@ void Game::DespawnModels()
 
 void Game::DrawTime() const
 {
-    int time = (int)GetTime();
-    std::string timetext = "Time: " + std::to_string(time);
+    if (!isGameOver)
+    {
+        int time = (int)(GetTime() - startTime);
+        std::string timetext = "Time: " + std::to_string(time);
 
-    DrawTextEx(font, timetext.c_str(), { (WINDOW_WIDTH - 200 - FONT_PADDING), WINDOW_HEIGHT - FONT_PADDING}, FONT_SIZE, 2, WHITE);
+        DrawTextEx(font, timetext.c_str(), { (WINDOW_WIDTH - 200 - FONT_PADDING), WINDOW_HEIGHT - FONT_PADDING }, FONT_SIZE, 2, WHITE);
+    }
+    else
+    {
+        const char* text = "Game Over";
+        float fontSize = 120.0f;
+        float spacing = 2.0f;
+
+        Vector2 textSize = MeasureTextEx(font, text, fontSize, spacing);
+
+        Vector2 pos = {
+            (WINDOW_WIDTH - textSize.x) * 0.5f,
+            (WINDOW_HEIGHT - textSize.y) * 0.5f
+        };
+
+        DrawTextEx(font, text, pos, fontSize, spacing, RED);
+    }
 }
 
 void Game::DrawScore() const
@@ -189,20 +216,42 @@ void Game::shootLaser(Vector3 pos)
 }
 void Game::update()
 {
-	float dt = GetFrameTime();
-    meteorTimer.update();
-    player.update(dt);
-    for (auto& m : meteors) m.update(dt);
-    for (auto& l : lasers) l.update(dt);
+    restartTimer.update();
+
+    if (!isGameOver)
+    {
+        float dt = GetFrameTime();
+        meteorTimer.update();
+        player.update(dt);
+        for (auto& m : meteors) m.update(dt);
+        for (auto& l : lasers) l.update(dt);
+
+
+        CheckCollisions();
+        DespawnFarLaser();
+        DespawnFarMeteor();
+        DespawnModels();
+    }
+
 
     
-    CheckCollisions();
-    DespawnFarLaser();
-    DespawnFarMeteor();
-    DespawnModels();
     UpdateMusicStream(audio.music);
 
 }
+
+void Game::restart()
+{
+    isGameOver = false;
+    score = 0;
+    startTime = GetTime();
+
+    lasers.clear();
+    meteors.clear();
+    player.reset(Vector3{0.0f,0.0f,0.0f});
+    
+    meteorTimer.activate();
+}
+
 void Game::spawnMeteor()
 {
     int texIndex = rand() % textures.size();

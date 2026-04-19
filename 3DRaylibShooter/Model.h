@@ -6,7 +6,7 @@
 #include <vector>
 #include <functional>
 #include <memory>
-
+#include <cmath>
 class BaseModel
 {
 public:
@@ -61,7 +61,7 @@ public:
 	{
 		texture = tex;
 		m_model = LoadModelFromMesh(GenMeshCube(36.0f, 1.0f, 34.0f));
-		m_pos = { 6.5f, -2.8f, -8.0f };
+		m_pos = { 6.5f, -2.f, -8.0f };
 		m_dir = { 0.0f, 0.0f, 0.0f };
 		m_speed = 0.0f;
 
@@ -77,7 +77,7 @@ class Player : public BaseModel
 {
 public:
 	std::function<void(Vector3)> m_shootLaser;
-
+	float angle = 0.f;
 
 	Player() = default;
 	Player(Model model, Vector3 pos, std::function<void(Vector3)> shootLaser) : BaseModel(model,pos, {0,0,0}, PLAYER_SPEED), m_shootLaser(shootLaser)
@@ -99,17 +99,30 @@ public:
 		}
 	}
 
+	void reset(Vector3 pos)
+	{
+		m_pos = pos;
+		m_dir = { 0.0f,0.0f,0.0f };
+	}
+
 	void update(float dt) override
 	{
 		input();
 		move(dt);
+		angle -= m_dir.x * 10 * dt;
+		m_pos.y += std::sin((float)GetTime() * 5.0f) * dt * 0.25f;
 		constraints();
+	}
+
+	void draw() override
+	{
+		DrawModelEx(m_model, m_pos, Vector3{0.f,0.f,1.f}, angle, Vector3{1.f,1.f,1.f}, WHITE);
 	}
 
 	void constraints()
 	{
 		m_pos.x = std::max(-6.f, std::min(m_pos.x, 7.f));
-
+		angle = std::max(-15.f, std::min(angle, 15.f));
 	}
 };
 class Laser : public BaseModel

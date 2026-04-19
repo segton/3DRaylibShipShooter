@@ -25,6 +25,7 @@ public:
 	void run();
 	void draw();
 	void update();
+	void restart();
 	bool isGameOver = false;
 
 	
@@ -43,7 +44,7 @@ private:
 	void DespawnFarMeteor();
 
 	int score = 0;
-
+	float startTime = 0.0;
 	ModelAssets models;
 	AudioAssets audio;
 
@@ -60,5 +61,6 @@ private:
 	std::vector<Meteor> meteors;
 	std::vector<Laser> lasers;
 	Timer meteorTimer;
+	Timer restartTimer;
 };
 

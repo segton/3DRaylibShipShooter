@@ -9,6 +9,7 @@ void MainLoop()
 {
     if (g_game )
     {
+
         g_game->update();
         g_game->draw();
     }
@@ -21,7 +22,7 @@ int main()
 #ifdef __EMSCRIPTEN__
     emscripten_set_main_loop(MainLoop, 0, 1);
 #else
-    while (!WindowShouldClose() && !g_game->isGameOver)
+    while (!WindowShouldClose() )
     {
         MainLoop();
     }
